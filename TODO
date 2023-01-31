@@ -1,0 +1,15 @@
+both pygame.quit and pygame.event.get must be called from the main thread
+therefore
+have the main thread run the graphics
+but then start a new thread to run the turing machine
+
+ACTUALLY
+
+i could just run the turing machine first
+record everything. (i.e. current index, state, tape)
+and then feed that into the graphics display that will run everything
+
+1. make it so the turing machine runs first
+2. make sure the TapeDisplay processes the data correctly
+3. add smoothing? - too lazy, maybe do later
+4. profit
