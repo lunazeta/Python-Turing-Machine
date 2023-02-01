@@ -66,6 +66,12 @@ def stepTuringMachine(deltaFunction, tape, currentIndex, currentState):
         
         return currentState, currentIndex, tape
 
+class InvalidFileType(Exception):
+
+    def __init__(self, msg):
+        self.msg = msg
+        super().__init__(msg)
+
 class Tape:
 
     def __getitem__(self, index: int) -> str:
@@ -155,6 +161,8 @@ class TuringMachine:
             self._runWithGraphics()
 
     def __init__(self, file: str):
+        if not file.endswith(".turing"):
+            raise InvalidFileType("File type must be .turing")
         self.file = file
         self.deltaFunction, self.arguments = self._interpretFile()
 
