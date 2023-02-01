@@ -1,10 +1,6 @@
 import pygame
 from math import floor
 
-# Want the head to be on screen at ALL times
-# How to:
-# Probably have the tape object move left if the head is offscreen
-
 class TapeDisplay:
 
     ONSCREEN = 7
@@ -18,7 +14,7 @@ class TapeDisplay:
     COLOR = pygame.Color(255,255,255)
     HALT_STATE_COLOR = pygame.Color(0,255,0)
 
-    def _writeText(self, i, xCoord, tape, currentState):
+    def _writeText(self, i: int, xCoord: tuple[float,float], tape: dict[str, int, int], currentState: str):
         tapeMin, tapeMax = tape[1], tape[2]
         if i < tapeMin or i > tapeMax:
             toDraw = "_"
@@ -30,7 +26,7 @@ class TapeDisplay:
         self.display.blit(stateText, (self.PADDING,0))
         self.display.blit(tapeText, (xCoord + self.SQUARE_SIZE/(2.5), self.HEAD_SIZE + self.TEXTSPACINGY))
 
-    def _drawBoxes(self, xCoord):
+    def _drawBoxes(self, xCoord: tuple[float,float]):
         rect = pygame.Rect(xCoord, self.HEAD_SIZE, self.SQUARE_SIZE, self.SQUARE_SIZE)
         pygame.draw.rect(self.display, self.COLOR, rect, width=3)
 
@@ -39,7 +35,7 @@ class TapeDisplay:
         points = ((xCoord, 0), (xCoord + self.SQUARE_SIZE, 0), (xCoord + self.SQUARE_SIZE/2, self.HEAD_SIZE))
         pygame.draw.polygon(self.display, self.COLOR, points)
 
-    def update(self, operations, t):
+    def update(self, operations: list, t: int):
         self.display.fill(self.BGCOLOR)
 
         step = floor(t/60)
@@ -63,7 +59,7 @@ class TapeDisplay:
         self.display = pygame.display.set_mode((self.WIDTH,self.HEIGHT))
         self.font = pygame.font.SysFont("Arial", 70)
 
-    def run(self, operations):
+    def run(self, operations: list):
         running = True
         waiting = False
         t = 0

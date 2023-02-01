@@ -1,6 +1,36 @@
 from graphicsDisplay import *
+from exceptions import InvalidFileType
 
-def interpretDelta(line: str, deltaFunction: dict) -> dict:
+class Tape:
+
+    def __getitem__(self, index: int):
+        if index in range(self.min, self.max + 1):
+            return self.tape[index - self.min]
+        else:
+            return "_"
+
+    def __setitem__(self, index: int, value):
+        if index in range(self.min, self.max + 1):
+            self.tape[index - self.min] = value
+        elif index < self.min:
+            self.min = index
+            self.tape[0] = value
+        else:
+            self.max = index
+            self.tape.append(value)
+
+    def returnTape(self):
+        string = ""
+        for i in self.tape:
+            string += i
+        return string
+
+    def __init__(self, tape: str):
+        self.min = 0
+        self.max = len(tape) - 1
+        self.tape = list(tape)
+
+def interpretDelta(line: str, deltaFunction: dict):
     #sN,1 -> sM,1,>
 
     leftRight = line.split("->")
@@ -33,7 +63,7 @@ def interpretDelta(line: str, deltaFunction: dict) -> dict:
 
     return deltaFunction
 
-def getParameter(line: str, parameter:str) -> str:
+def getParameter(line: str, parameter: str):
     if not line.startswith(parameter + ":"):
         raise SyntaxError
     
@@ -43,7 +73,7 @@ def getParameter(line: str, parameter:str) -> str:
     
     return leftRight[1].strip()
 
-def interpretLine(line: str, deltaFunction: dict, arguments: dict, requiredParameters: list[str]) -> tuple[None | str, None | dict]:
+def interpretLine(line: str, deltaFunction: dict, arguments: list, requiredParameters: list):
     if line == "\n" or line == "":
         return None, None
     for param in enumerate(requiredParameters):
@@ -56,7 +86,7 @@ def interpretLine(line: str, deltaFunction: dict, arguments: dict, requiredParam
     deltaFunction = interpretDelta(line, deltaFunction)
     return None, deltaFunction
 
-def stepTuringMachine(deltaFunction, tape, currentIndex, currentState):
+def stepTuringMachine(deltaFunction: dict, tape: Tape, currentIndex, currentState):
         detail = deltaFunction[currentState][tape[currentIndex]]
         currentState, tape[currentIndex] = detail[0], detail[1]
         if detail[2] == "<":
@@ -65,41 +95,6 @@ def stepTuringMachine(deltaFunction, tape, currentIndex, currentState):
             currentIndex += 1
         
         return currentState, currentIndex, tape
-
-class InvalidFileType(Exception):
-
-    def __init__(self, msg):
-        self.msg = msg
-        super().__init__(msg)
-
-class Tape:
-
-    def __getitem__(self, index: int) -> str:
-        if index in range(self.min, self.max + 1):
-            return self.tape[index - self.min]
-        else:
-            return "_"
-
-    def __setitem__(self, index: int, value: str):
-        if index in range(self.min, self.max + 1):
-            self.tape[index - self.min] = value
-        elif index < self.min:
-            self.min = index
-            self.tape[0] = value
-        else:
-            self.max = index
-            self.tape.append(value)
-
-    def returnTape(self):
-        string = ""
-        for i in self.tape:
-            string += i
-        return string
-
-    def __init__(self, tape: str):
-        self.min = 0
-        self.max = len(tape) - 1
-        self.tape = list(tape)
 
 class TuringMachine:
 
@@ -130,7 +125,7 @@ class TuringMachine:
         currentState = startState
         return haltingState, tape, currentState
 
-    def _runWithoutGraphics(self, stepMode):
+    def _runWithoutGraphics(self, stepMode: bool):
         haltingState, tape, currentState = self._init()
         currentIndex = 0
         operations = [[currentState, currentIndex, [tape.returnTape(), tape.min, tape.max]]]
