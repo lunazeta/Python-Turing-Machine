@@ -16,10 +16,12 @@ class TapeDisplay:
 
     def _writeText(self, i: int, xCoord: tuple[float,float], tape: dict[str, int, int], currentState: str):
         tapeMin, tapeMax = tape[1], tape[2]
+
         if i < tapeMin or i > tapeMax:
             toDraw = "_"
         else:
             toDraw = tape[0][i - tapeMin]
+        
         tapeText = self.font.render(toDraw, False, self.COLOR)
         stateText = self.font.render(currentState, False, self.COLOR)
         
@@ -69,11 +71,12 @@ class TapeDisplay:
                 self.clock.tick(60)
                 t += 1
             else:
-                haltText = self.font.render(operations[-1][0], False, self.HALT_STATE_COLOR)
-                self.display.blit(haltText, (self.PADDING, 0))
                 print(f"Result: {operations[-1][2][0].strip('_')}")
 
+                haltText = self.font.render(operations[-1][0], False, self.HALT_STATE_COLOR)
+                self.display.blit(haltText, (self.PADDING, 0))
                 pygame.display.update()
+                
                 running = False
                 waiting = True
             for event in pygame.event.get():

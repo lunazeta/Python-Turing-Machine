@@ -1,8 +1,10 @@
 from .graphicsDisplay import *
 from .exceptions import InvalidFileType
 
+# Acts in a similar way to a list, but everything is index from the original start point
 class Tape:
 
+    # If the index is not in range of the current defined tape, then return a blank symbol
     def __getitem__(self, index: int):
         if index in range(self.min, self.max + 1):
             return self.tape[index - self.min]
@@ -30,6 +32,7 @@ class Tape:
         self.max = len(tape) - 1
         self.tape = list(tape)
 
+# Iterprets a line of the delta function and adds it to the dict
 def interpretDelta(line: str, deltaFunction: dict):
     #sN,1 -> sM,1,>
 
@@ -73,6 +76,7 @@ def getParameter(line: str, parameter: str):
     
     return leftRight[1].strip()
 
+# Interpret one line from the Turing Machine file
 def interpretLine(line: str, deltaFunction: dict, arguments: list, requiredParameters: list):
     if line == "\n" or line == "":
         return None, None
@@ -86,9 +90,11 @@ def interpretLine(line: str, deltaFunction: dict, arguments: list, requiredParam
     deltaFunction = interpretDelta(line, deltaFunction)
     return None, deltaFunction
 
+# Execute one cycle of the Turing Machine
 def stepTuringMachine(deltaFunction: dict, tape: Tape, currentIndex, currentState):
         detail = deltaFunction[currentState][tape[currentIndex]]
         currentState, tape[currentIndex] = detail[0], detail[1]
+        
         if detail[2] == "<":
             currentIndex -= 1
         elif detail[2] == ">":
@@ -104,19 +110,22 @@ class TuringMachine:
         line = "\n"
         arguments = {}
         deltaFunction = {}
+        END_OF_FILE = ""
+
         with open(self.file, "r") as f:
-            while line != "":
+            while line != END_OF_FILE:
                 line = f.readline()
                 argumentsTemp, deltaFunctionTemp = interpretLine(line, deltaFunction, arguments, self.REQUIRED_PARAMETERS)
 
-                if not argumentsTemp and deltaFunctionTemp:
+                # Check which return value has been returned (i.e. the parameter not returned will be None)
+                # And update accordingly
+                if not argumentsTemp and deltaFunctionTemp: 
                     deltaFunction = deltaFunctionTemp
                 elif not (argumentsTemp or deltaFunctionTemp):
                     pass
                 else:
-                    arguments = argumentsTemp
+                    arguments = argumentsTemp 
             
-        
         return deltaFunction, arguments
 
     def _init(self):
@@ -130,17 +139,18 @@ class TuringMachine:
         currentIndex = 0
         operations = [[currentState, currentIndex, [tape.returnTape(), tape.min, tape.max]]]
 
-        
         while currentState != haltingState:
             if stepMode:
                 print(" "*currentIndex + "H")
                 print(tape.returnTape())
                 input("Press enter to continue... ")
+            
             currentState, currentIndex, tape = stepTuringMachine(self.deltaFunction, tape, currentIndex, currentState)
             operations.append([currentState, currentIndex, [tape.returnTape(), tape.min, tape.max]])
         
         return operations, tape
 
+    # Run the Turing Machine first, then iterate over each step in a graphical display
     def _runWithGraphics(self):
         operations, tape = self._runWithoutGraphics(False)
         
