@@ -1,12 +1,26 @@
 # Python Turing Machine
 
+## Installation
+
+### Windows
+```
+pip3 install qwhatyTuring
+```
+
+### Linux/MacOS
+```
+sudo pip3 install qwhatyTuring
+```
+
+## Description
+
 This is a python program which takes a description of a Turing Machine and executes it, returning the result.
 
 It has two modes:
  - Graphical (can be initialised using TuringMachine.run(graphicsMode=True))
  - Command-line (this is the default setting)
 
-# How do I create my own Turing Machine?
+## How do I create my own Turing Machine?
 
  - Create a file with the extension ".turing"
  - To create a start state you must begin by writing "start:", before then writing the start state (this can be anything, however I personally use sN)
@@ -23,12 +37,12 @@ A delta function has the following syntax:
     - ">", denoting a move right operation
     - "_", denoting the head to stay in place
 
-# How do I run my Turing Machine?
+## How do I run my Turing Machine?
 
 Initialising a turing machine is easy:
 
 ```python
-import interpreter as tur
+from qwhatyTuring import interpreter as tur
 myTuringMachine = tur.TuringMachine("yourTuringMachine.turing")
 myTuringMachine.run(graphicsMode=True)
 ```
