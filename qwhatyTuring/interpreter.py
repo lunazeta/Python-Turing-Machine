@@ -1,5 +1,5 @@
-from graphicsDisplay import *
-from exceptions import InvalidFileType
+from .graphicsDisplay import *
+from .exceptions import InvalidFileType
 
 class Tape:
 
