@@ -2,7 +2,7 @@ from setuptools import setup
 
 __project__ = "qwhatyTuring"
 __desc__ = "Turing Machine in Python"
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = "qwhaty"
 __author_email__ = "qwhaty@hotmail.com"
 __license__ = "MIT"
@@ -17,7 +17,6 @@ __classifiers__ = [
     "Intended Audience :: Education",
     "Topic :: Education",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11"
 ]
