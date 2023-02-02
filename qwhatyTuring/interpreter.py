@@ -125,7 +125,8 @@ class TuringMachine:
                     pass
                 else:
                     arguments = argumentsTemp 
-            
+        
+        deltaFunction[arguments["halt"]] = {}
         return deltaFunction, arguments
 
     def _init(self):
@@ -170,7 +171,7 @@ class TuringMachine:
             raise InvalidFileType("File type must be .turing")
         self.file = file
         self.deltaFunction, self.arguments = self._interpretFile()
-
+        self.haltingState = self.arguments["halt"]
 
 if __name__ == "__main__":
     myTuringMachine = TuringMachine("example.turing")

@@ -10,7 +10,7 @@ class TapeDisplay:
     SQUARE_SIZE = ((WIDTH-2*PADDING)/ONSCREEN)
     HEIGHT = SQUARE_SIZE + HEAD_SIZE
     TEXTSPACINGY = SQUARE_SIZE/3.25
-    BGCOLOR = pygame.Color(0,0,0)
+    BG_COLOR = pygame.Color(0,0,0)
     COLOR = pygame.Color(255,255,255)
     HALT_STATE_COLOR = pygame.Color(0,255,0)
 
@@ -38,7 +38,7 @@ class TapeDisplay:
         pygame.draw.polygon(self.display, self.COLOR, points)
 
     def update(self, operations: list, t: int):
-        self.display.fill(self.BGCOLOR)
+        self.display.fill(self.BG_COLOR)
 
         step = floor(t/60)
         currentOperations = operations[step]
@@ -87,5 +87,5 @@ class TapeDisplay:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     waiting = False
-        
+
         pygame.quit()
