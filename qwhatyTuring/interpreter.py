@@ -1,5 +1,5 @@
 from .graphicsDisplay import *
-from .exceptions import InvalidFileType
+from .exceptions import InvalidFileTypeError
 
 # Acts in a similar way to a list, but everything is index from the original start point
 class Tape:
@@ -21,7 +21,7 @@ class Tape:
             self.max = index
             self.tape.append(value)
 
-    def returnTape(self):
+    def return_tape(self):
         string = ""
         for i in self.tape:
             string += i
@@ -33,51 +33,51 @@ class Tape:
         self.tape = list(tape)
 
 # Iterprets a line of the delta function and adds it to the dict
-def interpretDelta(line: str, deltaFunction: dict):
+def interpret_delta(line: str, delta_function: dict):
     #sN,1 -> sM,1,>
 
-    leftRight = line.split("->")
-    if len(leftRight) != 2:
+    left_right = line.split("->")
+    if len(left_right) != 2:
         raise SyntaxError
 
-    left = leftRight[0].strip().split(",")
-    right = leftRight[1].strip().split(",")
+    left = left_right[0].strip().split(",")
+    right = left_right[1].strip().split(",")
 
     if len(left) != 2 or len(right) != 3:
         raise SyntaxError
     
-    startState = left[0]
+    start_state = left[0]
     read = left[1]
     if len(read) != 1:
         raise SyntaxError
     
-    endState = right[0]
+    end_state = right[0]
     write = right[1]
     if len(write) != 1:
         raise SyntaxError
 
-    leftOrRight = right[2]
-    if leftOrRight not in ["<",">","-"]:
+    left_or_right = right[2]
+    if left_or_right not in ["<",">","-"]:
         raise SyntaxError
 
-    if startState not in deltaFunction:
-        deltaFunction[startState] = {}
-    deltaFunction[startState][read] = [endState, write, leftOrRight]
+    if start_state not in delta_function:
+        delta_function[start_state] = {}
+    delta_function[start_state][read] = [end_state, write, left_or_right]
 
-    return deltaFunction
+    return delta_function
 
 def getParameter(line: str, parameter: str):
     if not line.startswith(parameter + ":"):
         raise SyntaxError
     
-    leftRight = line.split(":")
-    if len(leftRight) != 2:
+    left_right = line.split(":")
+    if len(left_right) != 2:
         raise SyntaxError
     
-    return leftRight[1].strip()
+    return left_right[1].strip()
 
 # Interpret one line from the Turing Machine file
-def interpretLine(line: str, deltaFunction: dict, arguments: list, requiredParameters: list):
+def interpret_line(line: str, delta_function: dict, arguments: list, requiredParameters: list):
     if line == "\n" or line == "":
         return None, None
     for param in enumerate(requiredParameters):
@@ -87,20 +87,20 @@ def interpretLine(line: str, deltaFunction: dict, arguments: list, requiredParam
             return arguments, None
         except SyntaxError:
             pass
-    deltaFunction = interpretDelta(line, deltaFunction)
-    return None, deltaFunction
+    delta_function = interpret_delta(line, delta_function)
+    return None, delta_function
 
 # Execute one cycle of the Turing Machine
-def stepTuringMachine(deltaFunction: dict, tape: Tape, currentIndex, currentState):
-        detail = deltaFunction[currentState][tape[currentIndex]]
-        currentState, tape[currentIndex] = detail[0], detail[1]
+def stepTuringMachine(delta_function: dict, tape: Tape, currentIndex, current_state):
+        detail = delta_function[current_state][tape[currentIndex]]
+        current_state, tape[currentIndex] = detail[0], detail[1]
         
         if detail[2] == "<":
             currentIndex -= 1
         elif detail[2] == ">":
             currentIndex += 1
         
-        return currentState, currentIndex, tape
+        return current_state, currentIndex, tape
 
 class TuringMachine:
 
@@ -109,70 +109,70 @@ class TuringMachine:
     def _interpretFile(self):
         line = "\n"
         arguments = {}
-        deltaFunction = {}
+        delta_function = {}
         END_OF_FILE = ""
 
         with open(self.file, "r") as f:
             while line != END_OF_FILE:
                 line = f.readline()
-                argumentsTemp, deltaFunctionTemp = interpretLine(line, deltaFunction, arguments, self.REQUIRED_PARAMETERS)
+                argumentsTemp, delta_functionTemp = interpret_line(line, delta_function, arguments, self.REQUIRED_PARAMETERS)
 
                 # Check which return value has been returned (i.e. the parameter not returned will be None)
                 # And update accordingly
-                if not argumentsTemp and deltaFunctionTemp: 
-                    deltaFunction = deltaFunctionTemp
-                elif not (argumentsTemp or deltaFunctionTemp):
+                if not argumentsTemp and delta_functionTemp: 
+                    delta_function = delta_functionTemp
+                elif not (argumentsTemp or delta_functionTemp):
                     pass
                 else:
                     arguments = argumentsTemp 
         
-        deltaFunction[arguments["halt"]] = {}
-        return deltaFunction, arguments
+        delta_function[arguments["halt"]] = {}
+        return delta_function, arguments
 
     def _init(self):
-        startState, haltingState = self.arguments["start"], self.arguments["halt"]
+        start_state, halting_state = self.arguments["start"], self.arguments["halt"]
         tape = Tape(self.arguments["tape"])
-        currentState = startState
-        return haltingState, tape, currentState
+        current_state = start_state
+        return halting_state, tape, current_state
 
-    def _runWithoutGraphics(self, stepMode: bool):
-        haltingState, tape, currentState = self._init()
+    def _run_without_graphics(self, stepMode: bool):
+        halting_state, tape, current_state = self._init()
         currentIndex = 0
-        operations = [[currentState, currentIndex, [tape.returnTape(), tape.min, tape.max]]]
+        operations = [[current_state, currentIndex, [tape.return_tape(), tape.min, tape.max]]]
 
-        while currentState != haltingState:
+        while current_state != halting_state:
             if stepMode:
                 print(" "*currentIndex + "H")
-                print(tape.returnTape())
+                print(tape.return_tape())
                 input("Press enter to continue... ")
             
-            currentState, currentIndex, tape = stepTuringMachine(self.deltaFunction, tape, currentIndex, currentState)
-            operations.append([currentState, currentIndex, [tape.returnTape(), tape.min, tape.max]])
+            current_state, currentIndex, tape = stepTuringMachine(self.delta_function, tape, currentIndex, current_state)
+            operations.append([current_state, currentIndex, [tape.return_tape(), tape.min, tape.max]])
         
         return operations, tape
 
     # Run the Turing Machine first, then iterate over each step in a graphical display
-    def _runWithGraphics(self):
-        operations, tape = self._runWithoutGraphics(False)
+    def _run_with_graphics(self):
+        operations, tape = self._run_without_graphics(False)
         
-        tapeDisplay = TapeDisplay()
-        tapeDisplay.run(operations)
+        tape_display = TapeDisplay()
+        tape_display.run(operations)
         
 
-    def run(self, stepMode=False, graphicsMode=False):
-        if not graphicsMode:
-            operations, tape = self._runWithoutGraphics(stepMode)
-            print("Result: " + tape.returnTape().strip("_"))
+    def run(self, stepMode=False, graphics_mode=False):
+        if not graphics_mode:
+            operations, tape = self._run_without_graphics(stepMode)
+            print("Result: " + tape.return_tape().strip("_"))
         else:
-            self._runWithGraphics()
+            self._run_with_graphics()
 
     def __init__(self, file: str):
         if not file.endswith(".turing"):
-            raise InvalidFileType("File type must be .turing")
+            raise InvalidFileTypeError("File type must be .turing")
         self.file = file
-        self.deltaFunction, self.arguments = self._interpretFile()
-        self.haltingState = self.arguments["halt"]
+        self.delta_function, self.arguments = self._interpretFile()
+        self.halting_state = self.arguments["halt"]
 
 if __name__ == "__main__":
-    myTuringMachine = TuringMachine("example.turing")
-    myTuringMachine.run(graphicsMode=True)
+    my_turing_machine = TuringMachine("example.turing")
+    my_turing_machine.run(graphics_mode=True)

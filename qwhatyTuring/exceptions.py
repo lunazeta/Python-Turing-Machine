@@ -1,4 +1,4 @@
-class InvalidFileType(Exception):
+class InvalidFileTypeError(Exception):
 
     def __init__(self, msg):
         self.msg = msg
